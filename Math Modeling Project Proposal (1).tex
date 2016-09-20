@@ -1,0 +1,173 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{array}
+\newcolumntype{L}{>{\centering\arraybackslash}m{9cm}}
+
+\begin{document}
+
+\title{Mathematical Model for Item Build Maximization of League of Legends}
+\author{Jon-Michael Rutter,  Max Highsmith}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{Introduction}
+League of Legends is the massively popular game developed by Riot Games.  It is a Multiplayer Online Battle Arena (MOBA) style game where two teams of five players each face off against each other in a computer generated environment.  Although the goal of the game is simple, the wealth of characters, items, abilities, strategies, and sheer player-base make each game a drastically different experience. \\
+League of Legends currently boasts 100 million active players.  Last year, over the five weeks of World Championship play, over 334 million viewers tuned in, and 36 million watched the final match between SK Telecom Team 1 and the Koo Tigers.\\
+In League of Legends, there are five positions on each team: Top Lane, Jungle, Mid Lane, Attack Damage Carry, and Support.  While compositions and roles vary, there is one role dedicated to a specific class: the Attack Damage Carry, who is a ranged Marksman type character.  Typically, these characters rely on their auto-attacks to inflict massive damage to the enemy team.  Players have a choice between 21 different characters with substantially different play styles to fill this role. \\
+We endeavor over the course of this project to construct a model to evaluate the relative effectiveness of these characters.
+
+\section{Terms}
+There are a variety of terms used to describe elements of the game which are essential to understanding this model. \\
+\begin{tabular}{| l| L| }
+   Term & Definition\\ \hline
+   Champion & A character controlled by the player.\\ \hline
+   Minion & Smaller characters controlled by artificial intelligence that spawn in waves and push toward the enemy nexus.  A killing blow on a minion awards the player gold.\\ \hline
+   Farm &  How many minions a player has killed over the course of a match.  Farm is a useful metric for determining the amount of gold a character has. \\ \hline
+   KDA & Kills, Deaths, and Assists. While the vast majority of gold income comes from objectives and farm, Killing and Assisting in Killing enemy characters awards substantial gold as well. \\ \hline
+   ADC & Attack Damage Carry, sometimes AD Carry.  This individual is responsible for inflicting physical damage to enemy champions. \\ \hline
+   
+\end{tabular}
+\section{Starting Variables}
+
+We begin our model by introducing a few of the basic variables which will guide the flow of this model.  The higher level variables which will be used in metric calculations of this model will be functions of one or all of these variables either directly or through other variables which are themselves functions.\\
+$t 		         = $The amount of time which has progressed in the game\\
+$c_{caster} = $ The amount of caster minions killed by a player. \\
+$c_{melee} = $ The amount of melee minions killed by a player. \\
+$c_{cannon} = $ The amount of cannon minions killed by a player. \\
+$k = $ The number of other players killed by a player. \\
+$a = $ The number of kills the player has assisted with. \\
+$O = $ The number of objectives a team has destroyed that reward team gold. \\
+$gold(t, c_{caster}, c_{melee}, c_{cannon}, k, a, O) = $ the amount of gold that a player has accumulated at a given time. \\
+$level(t) = $ the level of a champion being modeled. For the purposes of our model, the experience gained through minion kills, objectives, and killing other players is accounted for as a linear model.\\
+Champion Type     =  Discrete function that represents the champion being modeled\\
+ 
+\subsection{Gold}
+Because Gold is steadily accumulated, in our original model we will construct G(t) to be linear with an average level of farm efficiency.  Later, we may introduce an added layer of complexity by breaking gold gain down into its component parts.
+
+\subsection{Level}  
+A champions level at a given time is between the range of 1 and 18.  Because there are large quantities of time between jumps in levels and because it is nonsensical to consider champions at fractional levels we are required to treat this function as discrete. 
+
+\subsection{Champion Type}
+The nature of this variable is still largely in the air but its aim is to capture the variant scales of that different champions upgrade and start with.
+
+\subsection{Natural Ability}
+We define Natural Ability as vectors whose values are baseline stats which a champion has prior to augmentation with item purchases.  These values are determined based on the champion type and level.  Initially, we will construct these models with the baseline stats alone; later, as an additional level of complexity, we may incorporate masteries, runes, and summoner spells into the model.
+\begin{equation}
+Natural Ability = 
+\begin{vmatrix}
+	Health(Level)\\
+	Armor(Level) \\
+	Magic\hspace{2pt}Resist(Level)\\
+	Attack\hspace{2pt}Damage(Level)\\
+	Attack\hspace{2pt}Speed(Level)\\
+	Movement\hspace{2pt}Speed(Items)\\
+	Range \\
+\end{vmatrix} = f(Level, Champion Type)
+\end{equation}
+
+\subsection{Items Buffs}
+We define Item Buffs as a vector  sum of a sequence of vectors $\{a_n\}$  where $a_i$ is a vector whose fields represent the buff a champion receives as the result of purchasing an item.  \\
+ The aim of the Item buff variable is to capture all bonuses a champion is receiving for a given build.  
+In the model a champion will have a single ItemBuff variable at any given time, and all potential ItemBuffs will be tested so long as they fall below the Champions current gold accumulation (i.e. the champion can afford such a build)
+\begin{equation}
+Items Buffs = 
+\begin{vmatrix}
+	 Health\\
+	 Armor \\
+	 Magic\hspace{2pt} Resist\\
+	 Attack \hspace{2pt}Damage\\
+	 Attack\hspace{2pt} Speed\\
+	 Movement \hspace{2pt} Speed \\
+	 Range \\
+	Cost\\
+\end{vmatrix}=
+\sum_i^n
+\begin{vmatrix}
+	Health_i\\
+	Armor_i \\
+	Magic \hspace{2pt}Resist_i\\
+	Attack \hspace{2pt}Damage_i\\
+	Attack \hspace{2pt}Speed_i\\
+	Movement \hspace{2pt}Speed_i\\
+	Range_i \\
+	Cost_i\\
+\end{vmatrix}_i= f(gold)
+\end{equation}
+
+\subsection{Character Stats}
+Character Stats will be the actual stats which an upgraded and equipped champion has at a given time
+\begin{equation}
+Character Stats = 
+\begin{vmatrix}
+	Health\\
+	Armor \\
+	Magic\hspace{2pt} Resist\\
+	Attack\hspace{2pt} Damage\\
+	Attack\hspace{2pt} Speed\\
+	Movement \hspace{2pt} Speed \\
+	Range \\
+\end{vmatrix}
+f (Items Buffs, Natural Ability)
+\end{equation}
+
+
+\newpage
+
+
+\section{Metrics}
+The goal of a player is to ultimately assist his team in destroying the enemy Nexus.  There are a variety of smaller objectives which are essential to achieving this goal.  For the sake of simplicity this model considers battle based objectives and strives to  measure the effectiveness of a given character from a battle standpoint.  We do this by providing some variables which represent a champions ability to succeed in various battle environments.
+\subsection{Instantaneous Danger}
+Potential metrics for evaluating the efficiency of a given build at a specific time include\\
+\begin{itemize}
+	\item  TeamDamage:  measure of damage that a champion could effect if it were to enter a team fight at time t
+	\item  IndividualFightDamage = Likelihood of winning a 1v1 at a given t  (model tbd)
+	\item TowerDamage = Time Required to destroy a Tower at a given t(model tbd)
+\end{itemize}
+
+To provide a comprehensive metric we will combine these different variables into one index meant to represent a champion's danger to the enemy team at a given time.  While characters will vary greatly in their individual effectiveness, our model intends to both highlight their individual strengths along with their overall effectiveness.
+\begin{equation}
+Danger = f(TeamDamage, IndividualFightDamage, TowerDamage, t)
+\end{equation}
+
+We now describe our damage metrics in greater detail
+
+\subsection{TeamDamage}
+For the model of team damage we introduce a limiting function, Battle Environment, which describes the conditions that will lead to our characters potential death.  This function and its components display the rate of damage that will be received by our modeled champion in three different areas.  
+\begin{equation}
+Battle_Environment = 
+\begin{vmatrix}
+    \frac{Magic\hspace{2pt} Damage}{time} \\
+    \frac{Attack\hspace{2pt}Damage}{time}  \\
+    \frac{True\hspace{2pt}Damage}{time} \\
+\end{vmatrix}
+\end{equation}
+
+We evaluate team damage to be the amount of damage (we currently do not distinguish true,magic, or attack tbd) which can be distributed by a champion prior to the battle environment resulting in their death.
+
+TeamDamage = f(BattleEnvironment, CharacterStats)
+
+\subsection{IndividualFightDamage} MODEL TBD
+\subsection{TurretDamage}  MODEL TBD
+
+
+\subsection{Collective Danger}
+Our Danger metric as well as its component damage  metrics will be valuable for displaying a champions power at a given time t.  However, when selecting a build strategy the goal is to maximizes a character's ability throughout the game.  Consequently we develop a metric called Effectiveness of Build whose aim is to capture the collective Danger of the champion for the totality of a game.
+
+
+\begin{equation}
+	\label{simple_equation}
+	Build \hspace{2pt} Effectiveness = \int_0^{length of game}Danger(Battle_Environment, Character_Stats)dt
+\end{equation}
+
+\newpage
+\section{Potential Areas for Expansion}
+Some of our potential areas for expansion include incorporating items which buff character utility when factoring instantaneous danger and overall effectiveness.  Potential variables include: warding buffs, jungle damage, healing allies, minion buffs, tower buffs, and dragon buffs.
+
+
+
+\end{document}
