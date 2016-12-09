@@ -2,6 +2,8 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{array}
+\usepackage{graphicx}
+\graphicspath{ {./} }
 \newcolumntype{L}{>{\centering\arraybackslash}m{9cm}}
 
 \begin{document}
@@ -117,7 +119,7 @@ f(G,i)
 Each item$i$ is an item variable. It is worth noting that in  league of legends there are 7 item slots, but one is reserved for wards and one is typically used for mobility, neither of which  factor into our model.
 
 \subsection{Adjusted Stats}
-The Adjusted Stat matrix, A, is a vector whose values represent the statistics of a character after it has been equipped with a combination of items.  The Adjusted Stat matrix contains the same fundamental fields as a natural stat matrix (with the exception of AttackSpeedOffset)  but alters the fields according to the bonuses assigned to each item$i$ within build B.
+The Adjusted Stat vector, A, is a vector whose values represent the statistics of a character after it has been equipped with a combination of items.  The Adjusted Stat matrix contains the same fundamental fields as a natural stat matrix (with the exception of AttackSpeedOffset)  but alters the fields according to the bonuses assigned to each item$i$ within build B.
 
 \begin{equation}
 Adjusted Stats = 
@@ -196,7 +198,7 @@ To evaluate the effectiveness of a build, this metric models a champions ability
 {\bf{Input}}\\
 We require a mechanism for numerically evaluating a champions ability to defeat an enemy champion in 1v1 combat.  Therefore the primary inputs we would expect are the CharacterStats matrix for the two fightingl champions.  
 \begin{equation}
-individualBattle = F(ChampionAStats, ChampionBStats)
+indidualBattle = F(ChampionAStats, ChampionBStats)
 \end{equation}
 {\bf{Output}}\\
 In a league of legends battle between characters A and B there are fundamentally 3 potential outcomes from the perspective of champion A. \\
@@ -221,14 +223,46 @@ $Battle Sequence$
 
 \newpage
 \section{Code Summary}
+\begin{tabular}{|c|c|}\hline
+Process& Summary\\  \hline
+getItemBank& Calls riot api and constructs an item bank  \\ \hline
+sortItemBank & Sorts Item Bank by item price, ascending\\ \hline
+possibleBuild& Generate possible builds given an amount of gold\\  \hline
+caitStats & Determine Natural Stats vector based on level \\ \hline
+genChampStatMatrix & Given a build and natural champion stats compute Adjusted Stats ? \\ \hline
+caitAttackArray & Given Adjusted Stats, Build calculate attack array  \\ \hline
+calcDps& Given attack array determine normalized damadge per second \\ \hline
+battleDamage & Given 2 Adjusted Stat vectors, 2 attack arrays determine individualBattleMetric\\ \hline
+\end{tabular}\\\\\\
+\begin{tabular}{|c|c|c|} \hline
+Process& O(n) time &\\  \hline
+getItemBank& n = items in api & n  \\ \hline
+sortItemBank & n = items in bank & $nlog(n)$ \\ \hline
+possibleBuild& n=items in bank & $n^5 + n$\\  \hline
+caitStats  &  & constant time\\ \hline
+genChampStatMatrix &  &? \\ \hline
+caitAttackArray  & &? \\ \hline
+calcDps&  &? \\ \hline
+battleDamage & &\\ \hline
+\end{tabular}
+
 \newpage
 \section{Results}
-Our Model tested for 
+Our model tested Caitlyns optimal build for 3 stats
+1. Caitlyn level 2 with 1000 gold
+2. Caitlyn level 4 with 2000 gold
+3. Caitlyn level 7 with 3000 gold
 \newpage
 \section{Potential Areas for Expansion}
-Some of our potential areas for expansion include incorporating items which buff character utility when factoring instantaneous danger and overall effectiveness.  Potential variables include: warding buffs, jungle damage, healing allies, minion buffs, tower buffs, and dragon buffs.
+Some of our potential areas for expansion include:\\
+1. {\bf Wider range of Metrics}: Our current metrics effectively capture the value of items for battle based objectives, however the current metrics do not consider utility based items which provide assistance outside of battle objectives.  These include items with effects such as: wards, jungle damage, healing allies, minion buffs and tower buffs.  Constructing such metrics in a manner which effectively compares them to the battle based metrics will require further meditation\\
+2. {\bf Wider range of player based adjustments}  In our model the variables which directly contribute to Caitlyns adjusted stats vector are her natural stat vector and her build. However, in addition to items, League of Legends allows for alternative contrbuters to a characters' stats such as Runes, Masteries, and Summoner Spells.  These factors could be used to contribute to build selection in the future.\\
+3. {\bf Incorporation of Team Dynamics} League of legends is a team based sport and to completely evaluate the effectiveness of a champions build requires consideration of how that build will interact with your allys.  
 \newpage
-\section{Works Cited}
+\section{Works Cited ?}
+$http://leagueoflegends.wikia.com/wiki/League_of_Legends_Wiki$\\
+$https://developer.riotgames.com/$
+
 
 
 \end{document}
